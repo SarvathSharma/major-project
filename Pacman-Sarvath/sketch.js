@@ -30,7 +30,7 @@ let startingGrid = [
 ];
 
 // global variables //
-let backgroundImage;
+let backgroundImage, pacman;
 
 function preload() {
   backgroundImage = loadImage("images/pacman-grid.png");
@@ -56,4 +56,49 @@ function makeGrid() {
       rect(x * 25, y * 25, 25, 25);
     }
   }
+}
+
+class Pacman {
+  constructor() {
+    this.x = 0;
+    this.y = 0;
+    this.speed = 1;
+    this.direction = 1;
+    this.moveUp = false;
+    this.moveLeft = false;
+    this.moveRight = false;
+    this.moveDown = false;
+    isMousePressed = false;
+  }
+
+  keyPressed() {
+    if (keyCode === 38) {
+      this.moveUp = true;
+    }
+    if (keyCode === 37) {
+      this.moveLeft = true;
+    }
+    if (keyCode === 39) {
+      this.moveRight = true;
+    }
+    if (keyCode === 40) {
+      this.moveDown = true;
+    }
+  }
+
+  keyReleased() {
+    if (keyCode === 38) {
+      this.moveUp = false;
+    }
+    if (keyCode === 37) {
+      this.moveLeft = false;
+    }
+    if (keyCode === 39) {
+      this.moveRight = false;
+    }
+    if (keyCode === 40) {
+      this.moveDown = false;
+    }
+  }
+
 }
