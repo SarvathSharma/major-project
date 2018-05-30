@@ -30,22 +30,23 @@ let startingGrid = [
 ];
 
 // global variables //
-let backgroundImage, pacmanGif1, pacmanGif2, pacman;
+let backgroundImage, pacman;
+let openMouth, closedMouth;
 
 function preload() {
   backgroundImage = loadImage("images/pacman-grid.png");
-  pacmanGif1 = loadImage("images/pacman-eating.gif");
-  // pacmanGif2 = createImage("pacman-eating.gif");
-  pacman = new Pacman();
+  openMouth = loadImage("images/open-mouth.png");
+  closedMouth = loadImage("images/close-mouth.png");
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+  pacman = new Pacman();
 }
 
 function draw() {
   pacman.showPacman();
-  // pacman.movePacman();
+  pacman.movePacman();
 }
 
 function makeGrid() {
@@ -74,8 +75,7 @@ class Pacman {
   }
 
   showPacman() {
-    image(pacmanGif1, this.x, this.y);
-    // pacmanGif2.position(50, 350);
+
   }
 
   keyPressed() {
@@ -145,7 +145,7 @@ class Pacman {
   }
 
   movePacman() {
-    // This function helps the rectangle move accross the screen
+    // This function makes pacman move accross the grid
     if (this.moveUp) {
       this.y -= this.speed;
     }
