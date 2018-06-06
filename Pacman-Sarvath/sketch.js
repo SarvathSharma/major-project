@@ -79,36 +79,40 @@ function movePac() {
           if (xSpeed === 10) {
             if (startingGrid[y][x + 1] === 1) {
               xSpeed = 0;
-            } else {
+            }
+            else {
               startingGrid[y][x] = 0;
-              startingGrid[y][x + 1] = 3
+              startingGrid[y][x + 1] = 3;
             }
             break xYLoop;
           }
           if (xSpeed === -10) {
             if (startingGrid[y][x - 1] === 1) {
               xSpeed = 0;
-            } else {
+            }
+            else {
               startingGrid[y][x] = 0;
-              startingGrid[y][x - 1] = 3
+              startingGrid[y][x - 1] = 3;
               break xYLoop;
             }
           }
           if (ySpeed === 10) {
             if (startingGrid[y + 1][x] === 1) {
               ySpeed = 0;
-            } else {
+            }
+            else {
               startingGrid[y][x] = 0;
-              startingGrid[y + 1][x] = 3
+              startingGrid[y + 1][x] = 3;
               break xYLoop;
             }
           }
           if (ySpeed === -10) {
             if (startingGrid[y - 1][x] === 1) {
               ySpeed = 0;
-            } else {
+            }
+            else {
               startingGrid[y][x] = 0;
-              startingGrid[y - 1][x] = 3
+              startingGrid[y - 1][x] = 3;
               break xYLoop;
             }
           }
