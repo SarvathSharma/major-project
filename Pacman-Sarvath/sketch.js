@@ -39,7 +39,7 @@ let ySpeed = 0;
 
 function preload() {
   backgroundImage = loadImage("images/pacman-grid.png");
-  openMouth = loadImage("images/open-mouth.png");
+  openMouth = loadImage("images/pacman-eating.gif");
   closedMouth = loadImage("images/close-mouth.png");
   pointImage = loadImage("images/point.png");
 }
@@ -79,36 +79,40 @@ function movePac() {
           if (xSpeed === 10) {
             if (startingGrid[y][x + 1] === 1) {
               xSpeed = 0;
-            } else {
+            }
+            else {
               startingGrid[y][x] = 0;
-              startingGrid[y][x + 1] = 3
+              startingGrid[y][x + 1] = 3;
             }
             break xYLoop;
           }
           if (xSpeed === -10) {
             if (startingGrid[y][x - 1] === 1) {
               xSpeed = 0;
-            } else {
+            }
+            else {
               startingGrid[y][x] = 0;
-              startingGrid[y][x - 1] = 3
+              startingGrid[y][x - 1] = 3;
               break xYLoop;
             }
           }
           if (ySpeed === 10) {
             if (startingGrid[y + 1][x] === 1) {
               ySpeed = 0;
-            } else {
+            }
+            else {
               startingGrid[y][x] = 0;
-              startingGrid[y + 1][x] = 3
+              startingGrid[y + 1][x] = 3;
               break xYLoop;
             }
           }
           if (ySpeed === -10) {
             if (startingGrid[y - 1][x] === 1) {
               ySpeed = 0;
-            } else {
+            }
+            else {
               startingGrid[y][x] = 0;
-              startingGrid[y - 1][x] = 3
+              startingGrid[y - 1][x] = 3;
               break xYLoop;
             }
           }
@@ -120,19 +124,19 @@ function movePac() {
 
 
 function keyPressed() {
-  if (keyCode === RIGHT_ARROW) {
+  if (keyCode === 68) {
     xSpeed = 10;
     ySpeed = 0;
   }
-  if (keyCode === LEFT_ARROW) {
+  if (keyCode === 65) {
     xSpeed = -10;
     ySpeed = 0;
   }
-  if (keyCode === UP_ARROW) {
+  if (keyCode === 87) {
     xSpeed = 0;
     ySpeed = -10;
   }
-  if (keyCode === DOWN_ARROW) {
+  if (keyCode === 83) {
     xSpeed = 0;
     ySpeed = 10;
   }
