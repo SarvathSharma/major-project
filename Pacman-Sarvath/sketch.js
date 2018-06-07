@@ -32,27 +32,28 @@ let startingGrid = [
 
 // global variables //
 let backgroundImage, pacman, pointImage;
-let openMouth, closedMouth;
+let pacmanUp, pacmanLeft, pacmanRight, pacmanDown, currentPacman;
+let upKey, downKey, rightKey, leftKey;
 let cellSize = 25;
-let xSpeed = 0;
-let ySpeed = 0;
 
 function preload() {
   backgroundImage = loadImage("images/pacman-grid.png");
-  openMouth = loadImage("images/pacman-eating.gif");
-  closedMouth = loadImage("images/close-mouth.png");
+  pacmanUp = loadImage("images/pacman-up.png");
+  pacmanDown = loadImage("images/pacman-down.png");
+  pacmanRight = loadImage("images/pacman-right.png");
+  pacmanLeft = loadImage("images/pacman-left.png");
   pointImage = loadImage("images/point.png");
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   pacman = new Pacman();
+  currentPacman = pacmanRight;
 }
 
 function draw() {
   // pacman.showPacman();
-  pacman.movePacman();
-  movePac();
+  pacman.movePac();
   makeGrid();
 }
 
@@ -65,177 +66,89 @@ function makeGrid() {
         image(pointImage, cellSize * x, cellSize * y);
       }
       if (startingGrid[y][x] === 3) {
-        image(openMouth, cellSize * x, cellSize * y, 25, 25);
+        image(currentPacman, cellSize * x, cellSize * y, 25, 25);
       }
     }
   }
 }
-
-function movePac() {
-  xYLoop: for (let x = 0; x < 27; x++) {
-    for (let y = 0; y < 21; y++) {
-      if (frameCount % 20 === 0) {
-        if (startingGrid[y][x] === 3) {
-          if (xSpeed === 10) {
-            if (startingGrid[y][x + 1] === 1) {
-              xSpeed = 0;
-            }
-            else {
-              startingGrid[y][x] = 0;
-              startingGrid[y][x + 1] = 3;
-            }
-            break xYLoop;
-          }
-          if (xSpeed === -10) {
-            if (startingGrid[y][x - 1] === 1) {
-              xSpeed = 0;
-            }
-            else {
-              startingGrid[y][x] = 0;
-              startingGrid[y][x - 1] = 3;
-              break xYLoop;
-            }
-          }
-          if (ySpeed === 10) {
-            if (startingGrid[y + 1][x] === 1) {
-              ySpeed = 0;
-            }
-            else {
-              startingGrid[y][x] = 0;
-              startingGrid[y + 1][x] = 3;
-              break xYLoop;
-            }
-          }
-          if (ySpeed === -10) {
-            if (startingGrid[y - 1][x] === 1) {
-              ySpeed = 0;
-            }
-            else {
-              startingGrid[y][x] = 0;
-              startingGrid[y - 1][x] = 3;
-              break xYLoop;
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
 
 function keyPressed() {
-  if (keyCode === 68) {
-    xSpeed = 10;
-    ySpeed = 0;
+  if (keyCode === 68) { //D key going right
+    pacman.xSpeed = 10;
+    pacman.ySpeed = 0;
+    currentPacman = pacmanRight;
   }
-  if (keyCode === 65) {
-    xSpeed = -10;
-    ySpeed = 0;
+  if (keyCode === 65) { //A key going left
+    pacman.xSpeed = -10;
+    pacman.ySpeed = 0;
+    currentPacman = pacmanLeft;
   }
-  if (keyCode === 87) {
-    xSpeed = 0;
-    ySpeed = -10;
+  if (keyCode === 87) { //W key going up
+    pacman.xSpeed = 0;
+    pacman.ySpeed = -10;
+    currentPacman = pacmanUp;
   }
-  if (keyCode === 83) {
-    xSpeed = 0;
-    ySpeed = 10;
+  if (keyCode === 83) { //S key going down
+    pacman.xSpeed = 0;
+    pacman.ySpeed = 10;
+    currentPacman = pacmanDown;
   }
 }
 
 class Pacman {
   constructor() {
-    this.x = 200;
-    this.y = 200;
-    this.speed = random(5, 30);
-    this.moveUp = false;
-    this.moveLeft = false;
-    this.moveRight = false;
-    this.moveDown = false;
+    this.xSpeed = 0;
+    this.ySpeed = 0;
   }
 
-  showPacman() {
-
-  }
-
-  keyPressed() {
-    // for (let x = 0; x < 27; x++) {
-    //   for (let y = 0; y < 21; y++) {
-    //     if (startingGrid[y][x] === 0) {
-    //       if (keyCode === 38) {
-    //         this.moveUp = true;
-    //       }
-    //       if (keyCode === 37) {
-    //         this.moveLeft = true;
-    //       }
-    //       if (keyCode === 39) {
-    //         this.moveRight = true;
-    //       }
-    //       if (keyCode === 40) {
-    //         this.moveDown = true;
-    //       }
-    //     }
-    //   }
-    // }
-    if (keyCode === 38) {
-      this.moveUp = true;
-    }
-    if (keyCode === 37) {
-      this.moveLeft = true;
-    }
-    if (keyCode === 39) {
-      this.moveRight = true;
-    }
-    if (keyCode === 40) {
-      this.moveDown = true;
-    }
-  }
-
-  keyReleased() {
-    // for (let x = 0; x < 27; x++) {
-    //   for (let y = 0; y < 21; y++) {
-    //     if (startingGrid[y][x] === 0) {
-    //       if (keyCode === 38) {
-    //         this.moveUp = false;
-    //       }
-    //       if (keyCode === 37) {
-    //         this.moveLeft = false;
-    //       }
-    //       if (keyCode === 39) {
-    //         this.moveRight = false;
-    //       }
-    //       if (keyCode === 40) {
-    //         this.moveDown = false;
-    //       }
-    //     }
-    //   }
-    // }
-    if (keyCode === 38) {
-      this.moveUp = false;
-    }
-    if (keyCode === 37) {
-      this.moveLeft = false;
-    }
-    if (keyCode === 39) {
-      this.moveRight = false;
-    }
-    if (keyCode === 40) {
-      this.moveDown = false;
-    }
-  }
-
-  movePacman() {
-    // This function makes pacman move accross the grid
-    if (this.moveUp) {
-      this.y -= this.speed;
-    }
-    if (this.moveDown) {
-      this.y += this.speed;
-    }
-    if (this.moveLeft) {
-      this.x -= this.speed;
-    }
-    if (this.moveRight) {
-      this.x += this.speed;
+  movePac() {
+    xYLoop: for (let x = 0; x < 27; x++) {
+      for (let y = 0; y < 21; y++) {
+        if (frameCount % 20 === 0) {
+          if (startingGrid[y][x] === 3) {
+            if (this.xSpeed === 10) {
+              if (startingGrid[y][x + 1] === 1) {
+                this.xSpeed = 0;
+              }
+              else {
+                startingGrid[y][x] = 0;
+                startingGrid[y][x + 1] = 3;
+              }
+              break xYLoop;
+            }
+            if (this.xSpeed === -10) {
+              if (startingGrid[y][x - 1] === 1) {
+                this.xSpeed = 0;
+              }
+              else {
+                startingGrid[y][x] = 0;
+                startingGrid[y][x - 1] = 3;
+                break xYLoop;
+              }
+            }
+            if (this.ySpeed === 10) {
+              if (startingGrid[y + 1][x] === 1) {
+                this.ySpeed = 0;
+              }
+              else {
+                startingGrid[y][x] = 0;
+                startingGrid[y + 1][x] = 3;
+                break xYLoop;
+              }
+            }
+            if (this.ySpeed === -10) {
+              if (startingGrid[y - 1][x] === 1) {
+                this.ySpeed = 0;
+              }
+              else {
+                startingGrid[y][x] = 0;
+                startingGrid[y - 1][x] = 3;
+                break xYLoop;
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
