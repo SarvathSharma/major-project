@@ -52,7 +52,6 @@ function setup() {
 }
 
 function draw() {
-  // pacman.showPacman();
   pacman.movePac();
   makeGrid();
   score.showOnScreen();
@@ -73,61 +72,6 @@ function makeGrid() {
   }
 }
 
-// // <<<<<<< HEAD
-// function movePac() {
-//   xYLoop: for (let x = 0; x < 27; x++) {
-//     for (let y = 0; y < 21; y++) {
-//       if (frameCount % 20 === 0) {
-//         if (startingGrid[y][x] === 3) {
-//           if (xSpeed === 10) {
-//             if (startingGrid[y][x + 1] === 1) {
-//               xSpeed = 0;
-//             }
-//             else {
-//               startingGrid[y][x] = 0;
-//               startingGrid[y][x + 1] = 3;
-//             }
-//             break xYLoop;
-//           }
-//           if (xSpeed === -10) {
-//             if (startingGrid[y][x - 1] === 1) {
-//               xSpeed = 0;
-//             }
-//             else {
-//               startingGrid[y][x] = 0;
-//               startingGrid[y][x - 1] = 3;
-//               break xYLoop;
-//             }
-//           }
-//           if (ySpeed === 10) {
-//             if (startingGrid[y + 1][x] === 1) {
-//               ySpeed = 0;
-//             }
-//             else {
-//               startingGrid[y][x] = 0;
-//               startingGrid[y + 1][x] = 3;
-//               break xYLoop;
-//             }
-//           }
-//           if (ySpeed === -10) {
-//             if (startingGrid[y - 1][x] === 1) {
-//               ySpeed = 0;
-//             }
-//             else {
-//               startingGrid[y][x] = 0;
-//               startingGrid[y - 1][x] = 3;
-//               break xYLoop;
-//             }
-//           }
-//         }
-//       }
-//     }
-//   }
-// }
-
-
-// =======
-// >>>>>>> c5b94bfc9c8030fc564b6c1e69872adb3ac03a89
 function keyPressed() {
   if (keyCode === 68) { //D key going right
     pacman.xSpeed = 10;
@@ -168,6 +112,7 @@ class Pacman {
               }
               else {
                 startingGrid[y][x] = 0;
+                score.amount += 5;
                 startingGrid[y][x + 1] = 3;
               }
               break xYLoop;
@@ -178,6 +123,7 @@ class Pacman {
               }
               else {
                 startingGrid[y][x] = 0;
+                score.amount += 5;
                 startingGrid[y][x - 1] = 3;
                 break xYLoop;
               }
@@ -188,6 +134,7 @@ class Pacman {
               }
               else {
                 startingGrid[y][x] = 0;
+                score.amount += 5;
                 startingGrid[y + 1][x] = 3;
                 break xYLoop;
               }
@@ -198,6 +145,7 @@ class Pacman {
               }
               else {
                 startingGrid[y][x] = 0;
+                score.amount += 5;
                 startingGrid[y - 1][x] = 3;
                 break xYLoop;
               }
@@ -212,10 +160,13 @@ class Pacman {
 class Score {
   constructor() {
     this.amount = 0;
+    this.currentScore = 0;
+    this.highScore = 0;
   }
 
   showOnScreen() {
     textAlign(LEFT,BOTTOM);
-    text("Score: " + this.amount, width-175, height-5);
+    textSize(80);
+    text("Score: " + this.amount, width-800, height-5);
   }
 }
