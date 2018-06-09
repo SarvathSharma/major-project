@@ -2,10 +2,9 @@
 // Justyn Pollard and Sarvath //
 // May 24, 2018 //
 
-
 // Arrays //
 
-// 0 = blackspace, 1 = border, 2 = point, 3 = pacman, 4 = greenGhost
+// 0 = blackspace, 1 = border, 2 = point, 3 = pacman, 4 = greenGhost, 5 = redGhost
 let grid = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ],
   [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, ],
@@ -14,7 +13,7 @@ let grid = [
   [1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, ],
   [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, ],
   [1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, ],
-  [1, 2, 2, 2, 2, 2, 2, 2, 1, 4, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, ],
+  [1, 2, 2, 2, 2, 2, 2, 2, 1, 4, 2, 2, 2, 2, 2, 2, 2, 5, 1, 2, 2, 2, 2, 2, 2, 2, 1, ],
   [1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 0, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, ],
   [1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 0, 0, 0, 0, 0, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, ],
   [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, ],
@@ -34,12 +33,9 @@ let grid = [
 let backgroundImage, pacman, pointImage, score;
 let openMouth, closedMouth, pacmanEating;
 let cellSize = 25;
-let downFree, rightFree, upFree, leftFree;
-let directionList = [];
-let direction;
-let previousDirection = "none";
 let pacmanUp, pacmanDown, pacmanRight, pacmanLeft, currentPacman;
 let greenGhost, inky;
+let redGhost, blinky;
 
 function preload() {
   backgroundImage = loadImage("images/pacman-grid.png");
@@ -49,6 +45,7 @@ function preload() {
   pacmanLeft = loadImage("images/pacman-left.png");
   pointImage = loadImage("images/point.png");
   greenGhost = loadImage("images/greenGhost.png");
+  redGhost = loadImage("images/redGhost.png");
   // pacmanEating = createImg("images/pacman-eating.gif");
 }
 
@@ -57,6 +54,7 @@ function setup() {
   pacman = new Pacman();
   score = new Score();
   inky = new Bashful();
+  blinky = new Shadow();
   currentPacman = pacmanRight;
 }
 
@@ -65,7 +63,6 @@ Array.prototype.sample = function() {
 };
 
 function draw() {
-  // pacman.showPacman();
   pacman.movePac();
   makeGrid();
   score.showOnScreen();
@@ -110,6 +107,9 @@ function makeGrid() {
       if (grid[y][x] === 4) {
         image(greenGhost, cellSize * x, cellSize * y);
       }
+      // if (grid[y][x] === 5) {
+      //   image(redGhost, cellSize * x, cellSize * y);
+      // }
     }
   }
 }
@@ -153,14 +153,12 @@ class Pacman {
                 this.xSpeed = 0;
               }
               else {
-<<<<<<< HEAD
-                startingGrid[y][x] = 0;
+                grid[y][x] = 0;
                 score.amount += 10;
-                startingGrid[y][x + 1] = 3;
-=======
+                grid[y][x + 1] = 3;
                 grid[y][x] = 0;
                 grid[y][x + 1] = 3;
->>>>>>> 715a4d26cf91f7ec35b3854777f381a28c2bc243
+
               }
               break xYLoop;
             }
@@ -203,7 +201,8 @@ class Pacman {
 
 class Bashful {
   constructor() {
-
+    this.direction;
+    this.previousDirection = "none";
   }
 
   moveGhost() {
@@ -224,35 +223,98 @@ class Bashful {
             if ((grid[y - 1][x] === 0 || grid[y - 1][x] === 2) && grid[y - 1][x] !== 1) {
               directionList.push("upFree");
             }
-            if (directionList.indexOf(previousDirection) === -1) {
-              direction = directionList.sample();
+            if (directionList.indexOf(this.previousDirection) === -1) {
+              this.direction = directionList.sample();
             }
             else {
-              direction = previousDirection;
+              this.direction = this.previousDirection;
             }
-            if (direction === "upFree") {
+            if (this.direction === "upFree") {
               grid[y][x] = grid[y - 1][x];
               grid[y - 1][x] = 4;
             }
-            else if (direction === "downFree") {
+            else if (this.direction === "downFree") {
               grid[y][x] = grid[y + 1][x];
               grid[y + 1][x] = 4;
             }
-            else if (direction === "rightFree") {
+            else if (this.direction === "rightFree") {
               grid[y][x] = grid[y][x + 1];
               grid[y][x + 1] = 4;
             }
-            else if (direction === "leftFree") {
+            else if (this.direction === "leftFree") {
               grid[y][x] = grid[y][x - 1];
               grid[y][x - 1] = 4;
             }
-            previousDirection = direction;
+            this.previousDirection = this.direction;
+            break ghostLoop;
+          }
+        }
+      }
+    }
+  }
+}
+
+class Shadow {
+  constructor() {
+    this.direction;
+    this.previousDirection = "none";
+  }
+
+  moveGhost() {
+    let directionList = [];
+    ghostLoop: for (let x = 0; x < 27; x++) {
+      for (let y = 0; y < 21; y++) {
+        if (frameCount % 20 === 0) {
+          if (grid[y][x] === 4) {
+            if ((grid[y][x + 1] === 0 || grid[y][x + 1] === 2) && grid[y][x + 1] !== 1) {
+              directionList.push("rightFree");
+            }
+            if ((grid[y][x - 1] === 0 || grid[y][x - 1] === 2) && grid[y][x - 1] !== 1) {
+              directionList.push("leftFree");
+            }
+            if ((grid[y + 1][x] === 0 || grid[y + 1][x] === 2) && grid[y + 1][x] !== 1) {
+              directionList.push("downFree");
+            }
+            if ((grid[y - 1][x] === 0 || grid[y - 1][x] === 2) && grid[y - 1][x] !== 1) {
+              directionList.push("upFree");
+            }
+            if (directionList.indexOf(this.previousDirection) === -1) {
+              this.direction = directionList.sample();
+            }
+            else {
+              this.direction = this.previousDirection;
+            }
+            if (this.direction === "upFree") {
+              grid[y][x] = grid[y - 1][x];
+              grid[y - 1][x] = 5;
+            }
+            else if (this.direction === "downFree") {
+              grid[y][x] = grid[y + 1][x];
+              grid[y + 1][x] = 5;
+            }
+            else if (this.direction === "rightFree") {
+              grid[y][x] = grid[y][x + 1];
+              grid[y][x + 1] = 5;
+            }
+            else if (this.direction === "leftFree") {
+              grid[y][x] = grid[y][x - 1];
+              grid[y][x - 1] = 5;
+            }
+            this.previousDirection = this.direction;
             break ghostLoop;
           }
           if (grid[y][x] === 3) {
             image(currentPacman, cellSize * x, cellSize * y, 25, 25);
           }
         }
+      }
+    }
+  }
+
+  chasePacman() {
+    for (let x = 0; x < 27; x++) {
+      for (let y = 0; y < 21; y++) {
+        //add code
       }
     }
   }
