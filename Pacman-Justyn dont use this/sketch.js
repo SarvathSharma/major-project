@@ -112,7 +112,7 @@ class Pacman {
               }
               else {
                 startingGrid[y][x] = 0;
-                score.amount += 5;
+                score.amount += 10;
                 startingGrid[y][x + 1] = 3;
               }
               break xYLoop;
