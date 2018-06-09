@@ -66,7 +66,8 @@ function draw() {
   pacman.movePac();
   makeGrid();
   score.showOnScreen();
-  inky.moveGhost();
+  inky.moveBashful();
+  blinky.moveShadow();
 }
 
 // function makeGrid() {
@@ -107,9 +108,9 @@ function makeGrid() {
       if (grid[y][x] === 4) {
         image(greenGhost, cellSize * x, cellSize * y);
       }
-      // if (grid[y][x] === 5) {
-      //   image(redGhost, cellSize * x, cellSize * y);
-      // }
+      if (grid[y][x] === 5) {
+        image(redGhost, cellSize * x, cellSize * y);
+      }
     }
   }
 }
@@ -205,7 +206,7 @@ class Bashful {
     this.previousDirection = "none";
   }
 
-  moveGhost() {
+  moveBashful() {
     let directionList = [];
     ghostLoop: for (let x = 0; x < 27; x++) {
       for (let y = 0; y < 21; y++) {
@@ -260,12 +261,12 @@ class Shadow {
     this.previousDirection = "none";
   }
 
-  moveGhost() {
+  moveShadow() {
     let directionList = [];
     ghostLoop: for (let x = 0; x < 27; x++) {
       for (let y = 0; y < 21; y++) {
         if (frameCount % 20 === 0) {
-          if (grid[y][x] === 4) {
+          if (grid[y][x] === 5) {
             if ((grid[y][x + 1] === 0 || grid[y][x + 1] === 2) && grid[y][x + 1] !== 1) {
               directionList.push("rightFree");
             }
@@ -302,9 +303,6 @@ class Shadow {
             }
             this.previousDirection = this.direction;
             break ghostLoop;
-          }
-          if (grid[y][x] === 3) {
-            image(currentPacman, cellSize * x, cellSize * y, 25, 25);
           }
         }
       }
