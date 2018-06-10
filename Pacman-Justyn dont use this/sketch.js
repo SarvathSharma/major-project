@@ -30,7 +30,8 @@ let grid = [
 ];
 
 // global variables //
-let backgroundImage, pacman, pointImage, score;
+let backgroundImage, menuPic, pacman, pointImage, myScore;
+let state, myMenu, backgroundMusic, boop;
 let openMouth, closedMouth, pacmanEating;
 let cellSize = 25;
 let pacmanUp, pacmanDown, pacmanRight, pacmanLeft, currentPacman;
@@ -39,6 +40,9 @@ let redGhost, blinky;
 
 function preload() {
   backgroundImage = loadImage("images/pacman-grid.png");
+  backgroundMusic = loadSound("assets/pacman-song.mp3");
+  boop = loadSound("assets/boop.mp3");
+  menuPic = loadImage("images/pacman-menu.jpg");
   pacmanUp = loadImage("images/pacman-up.png");
   pacmanDown = loadImage("images/pacman-down.png");
   pacmanRight = loadImage("images/pacman-right.png");
@@ -51,11 +55,15 @@ function preload() {
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+  myMenu = new Menu();
   pacman = new Pacman();
-  score = new Score();
+  myScore = new Score();
   inky = new Bashful();
   blinky = new Shadow();
   currentPacman = pacmanRight;
+  state = 0;
+  backgroundMusic.setVolume(0.6);
+  backgroundMusic.loop();
 }
 
 Array.prototype.sample = function() {
@@ -63,11 +71,23 @@ Array.prototype.sample = function() {
 };
 
 function draw() {
-  pacman.movePac();
-  makeGrid();
-  score.showOnScreen();
-  inky.moveBashful();
-  blinky.moveShadow();
+  background(0);
+
+  if (state === 0) {
+    myMenu.displayButton();
+    myMenu.checkIfMouseIsOverButton();
+  }
+
+  if (state === 1) {
+    backgroundMusic.stop();
+    noStroke();
+    pacman.movePac();
+    makeGrid();
+    myScore.showOnScreen();
+    inky.moveBashful();
+    blinky.moveShadow();
+  }
+
 }
 
 // function makeGrid() {
@@ -95,7 +115,6 @@ function draw() {
 // }
 
 function makeGrid() {
-  noStroke();
   image(backgroundImage, 0, 0);
   for (let x = 0; x < 27; x++) {
     for (let y = 0; y < 21; y++) {
@@ -138,6 +157,65 @@ function keyPressed() {
   }
 }
 
+function mousePressed() {
+  if (state === 0 && myMenu.isMouseOverButton) {
+    state = 1;
+  }
+}
+
+class Menu {
+  constructor() {
+    this.buttonx = width / 2;
+    this.buttony = height / 2 + 80;
+    this.buttonWidth = 100;
+    this.buttonHeight = 50;
+    this.isMouseOverButton = false;
+  }
+
+  displayButton() {
+    image(menuPic, width/2 -395, height/2 - 300);
+
+    rectMode(CENTER);
+
+    fill(0);
+    // Changes the color of the button if the mouse is over it
+    if (this.isMouseOverButton) {
+      fill(37,38,38);
+    }
+    // Draws the button in the middle of the screen
+    strokeWeight(4);
+    stroke(0,0,255);
+    rect(this.buttonx, this.buttony, this.buttonWidth, this.buttonHeight);
+    fill(255);
+    textAlign(CENTER,CENTER);
+    textSize(16);
+    text("Play", this.buttonx, this.buttony);
+    text("By Justyn and Sarvath", this.buttonx, height - 250);
+  }
+
+  checkIfMouseIsOverButton() {
+    // Checks to see if the mouse x and y are within the button
+    if (mouseX <= this.buttonx + this.buttonWidth / 2 && mouseX >= this.buttonx - this.buttonWidth / 2 &&
+      mouseY <= this.buttony + this.buttonHeight / 2 && mouseY >= this.buttony - this.buttonHeight / 2) {
+      this.isMouseOverButton = true;
+    }
+    else {
+      this.isMouseOverButton = false;
+    }
+  }
+
+  displayGameOver() {
+    // Writes game over and your score when you lose
+    fill(0, 255, 0);
+    textSize(48);
+    textAlign(CENTER, CENTER);
+    text("Your Score: " + myScore.amount, this.buttonx, this.buttony);
+
+    textSize(72);
+    text("Game Over", this.buttonx, this.buttony - 75);
+  }
+}
+
 class Pacman {
   constructor() {
     this.xSpeed = 0;
@@ -154,12 +232,10 @@ class Pacman {
                 this.xSpeed = 0;
               }
               else {
+                boop.play();
                 grid[y][x] = 0;
-                score.amount += 10;
+                myScore.amount += 10;
                 grid[y][x + 1] = 3;
-                grid[y][x] = 0;
-                grid[y][x + 1] = 3;
-
               }
               break xYLoop;
             }
@@ -168,6 +244,7 @@ class Pacman {
                 this.xSpeed = 0;
               }
               else {
+                boop.play();
                 grid[y][x] = 0;
                 grid[y][x - 1] = 3;
                 break xYLoop;
@@ -178,6 +255,7 @@ class Pacman {
                 this.ySpeed = 0;
               }
               else {
+                boop.play();
                 grid[y][x] = 0;
                 grid[y + 1][x] = 3;
                 break xYLoop;
@@ -188,6 +266,7 @@ class Pacman {
                 this.ySpeed = 0;
               }
               else {
+                boop.play();
                 grid[y][x] = 0;
                 grid[y - 1][x] = 3;
                 break xYLoop;
