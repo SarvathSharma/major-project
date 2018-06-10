@@ -31,7 +31,8 @@ let grid = [
 
 // global variables //
 let backgroundImage, menuPic, pacman, pointImage, myScore;
-let state, myMenu, backgroundMusic, boop;
+let state, myMenu, backgroundMusic, boop, user;
+let typeHere, button;
 let openMouth, closedMouth, pacmanEating;
 let cellSize = 25;
 let pacmanUp, pacmanDown, pacmanRight, pacmanLeft, currentPacman;
@@ -56,12 +57,16 @@ function preload() {
 function setup() {
   createCanvas(windowWidth, windowHeight);
   myMenu = new Menu();
+  user = new Username();
   pacman = new Pacman();
   myScore = new Score();
   inky = new Bashful();
   blinky = new Shadow();
   currentPacman = pacmanRight;
   state = 0;
+  typeHere = createInput();
+  button = createButton("Create User");
+  button.mousePressed(user.storeUsers());
   backgroundMusic.setVolume(0.6);
   backgroundMusic.loop();
 }
@@ -79,6 +84,18 @@ function draw() {
   }
 
   if (state === 1) {
+    myMenu.addUser();
+    myMenu.checkIfMouseIsOverButton();
+  }
+
+  if (state === 2) {
+    if (localStorage["saved"]) {
+      text(localStorage["saved"]);
+    }
+
+  }
+
+  if (state === 3) {
     backgroundMusic.stop();
     noStroke();
     pacman.movePac();
@@ -161,15 +178,27 @@ function mousePressed() {
   if (state === 0 && myMenu.isMouseOverButton) {
     state = 1;
   }
+
+  if (state === 1 && myMenu.guestButton) {
+    state = 3;
+  }
+
+  if (state === 1 && myMenu.userButton) {
+    state = 2;
+  }
 }
 
 class Menu {
   constructor() {
     this.buttonx = width / 2;
     this.buttony = height / 2 + 80;
+    this.guestButtonY = height/2 + 40;
+    this.userButtonY = height/2 + 120;
     this.buttonWidth = 100;
     this.buttonHeight = 50;
     this.isMouseOverButton = false;
+    this.userButton = false;
+    this.guestButton = false;
   }
 
   displayButton() {
@@ -193,14 +222,63 @@ class Menu {
     text("By Justyn and Sarvath", this.buttonx, height - 250);
   }
 
+  addUser() {
+    image(menuPic, width/2 -395, height/2 - 300);
+
+    rectMode(CENTER);
+
+    fill(0);
+    // Changes the color of the button if the mouse is over it
+    if (this.guestButton) {
+      fill(37,38,40);
+    }
+
+    // Draws the buttons
+    strokeWeight(4);
+    stroke(0,0,255);
+    rect(this.buttonx, this.guestButtonY, this.buttonWidth, this.buttonHeight);
+    fill(255);
+    textAlign(CENTER,CENTER);
+    textSize(16);
+    text("Guest", this.buttonx, this.buttony - 40);
+
+    fill(0);
+    if (this.userButton) {
+      fill(37,38,38);
+    }
+    rect(this.buttonx, this.userButtonY, this.buttonWidth, this.buttonHeight);
+    fill(255);
+    textAlign(CENTER,CENTER);
+    textSize(16);
+    text("User", this.buttonx, this.buttony + 40);
+  }
+
   checkIfMouseIsOverButton() {
-    // Checks to see if the mouse x and y are within the button
+    // Checks to see if the mouse x and y are within the play button
     if (mouseX <= this.buttonx + this.buttonWidth / 2 && mouseX >= this.buttonx - this.buttonWidth / 2 &&
       mouseY <= this.buttony + this.buttonHeight / 2 && mouseY >= this.buttony - this.buttonHeight / 2) {
       this.isMouseOverButton = true;
     }
     else {
       this.isMouseOverButton = false;
+    }
+
+    // Checks to see if the mouse x and y are within the guest button
+    if (mouseX <= this.buttonx + this.buttonWidth / 2 && mouseX >= this.buttonx - this.buttonWidth / 2 &&
+      mouseY <= this.guestButtonY + this.buttonHeight / 2 && mouseY >= this.guestButtonY - this.buttonHeight / 2) {
+      this.guestButton = true;
+    }
+    else {
+      this.guestButton = false;
+    }
+
+    // Checks to see if the mouse x and y are within the user button
+    if (mouseX <= this.buttonx + this.buttonWidth / 2 && mouseX >= this.buttonx - this.buttonWidth / 2 &&
+      mouseY <= this.userButtonY + this.buttonHeight / 2 && mouseY >= this.userButtonY - this.buttonHeight / 2) {
+      this.userButton = true;
+    }
+    else {
+      this.userButton = false;
     }
   }
 
@@ -213,6 +291,17 @@ class Menu {
 
     textSize(72);
     text("Game Over", this.buttonx, this.buttony - 75);
+  }
+}
+
+class Username {
+  constructor() {
+
+  }
+
+  storeUsers() {
+    console.log("in storestuff");
+    localStorage["saved"] = typeHere.value();
   }
 }
 
