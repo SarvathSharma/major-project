@@ -57,16 +57,16 @@ function preload() {
 function setup() {
   createCanvas(windowWidth, windowHeight);
   myMenu = new Menu();
-  user = new Username();
+  // user = new Username();
   pacman = new Pacman();
   myScore = new Score();
   inky = new Bashful();
   blinky = new Shadow();
   currentPacman = pacmanRight;
   state = 0;
-  typeHere = createInput();
-  button = createButton("Create User");
-  button.mousePressed(user.storeUsers());
+  // typeHere = createInput();
+  // button = createButton("Create User");
+  // button.mousePressed(user.storeUsers());
   backgroundMusic.setVolume(0.6);
   backgroundMusic.loop();
 }
@@ -83,19 +83,19 @@ function draw() {
     myMenu.checkIfMouseIsOverButton();
   }
 
+  // if (state === 1) {
+  //   myMenu.addUser();
+  //   myMenu.checkIfMouseIsOverButton();
+  // }
+
+  // if (state === 2) {
+  //   if (localStorage["saved"]) {
+  //     text(localStorage["saved"]);
+  //   }
+
+  // }
+
   if (state === 1) {
-    myMenu.addUser();
-    myMenu.checkIfMouseIsOverButton();
-  }
-
-  if (state === 2) {
-    if (localStorage["saved"]) {
-      text(localStorage["saved"]);
-    }
-
-  }
-
-  if (state === 3) {
     backgroundMusic.stop();
     noStroke();
     pacman.movePac();
@@ -294,16 +294,16 @@ class Menu {
   }
 }
 
-class Username {
-  constructor() {
-
-  }
-
-  storeUsers() {
-    console.log("in storestuff");
-    localStorage["saved"] = typeHere.value();
-  }
-}
+// class Username {
+//   constructor() {
+//
+//   }
+//
+//   storeUsers() {
+//     // console.log("in storestuff");
+//     // localStorage["saved"] = typeHere.value();
+//   }
+// }
 
 class Pacman {
   constructor() {
@@ -323,7 +323,6 @@ class Pacman {
               else {
                 boop.play();
                 grid[y][x] = 0;
-                myScore.amount += 10;
                 grid[y][x + 1] = 3;
               }
               break xYLoop;
