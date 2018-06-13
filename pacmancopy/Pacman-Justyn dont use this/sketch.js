@@ -1,6 +1,22 @@
-// Pacman //
+// Pacman - Major Project//
 // Justyn Pollard and Sarvath //
 // May 24, 2018 //
+// In general Justyn and Sarvath worked on the project together and split the responsibilites between each other
+//
+//Sarvath was responsible for the making of the Menu, Pacman, Scores and the aesthetics. Sarvath helped with the development of
+//the AI of the ghosts and the making of the grid.
+//
+//Justyn was responsible for the making of the ghosts AI, lives, and the power pellets of the game. Justyn worked on the movement
+//of pacman and the creation of the GIF.
+//
+//Justyn and Sarvath both came up with the code to create the movement for pacman, the ghosts and the high score storage. Overall we were
+//able to achieve all our need to have: Pacman moving around the grid, the basic AI for the ghosts, a high score storage system, and the
+//overall design of the game looking like the original game itself.
+//
+//We were able to achieve some of the nice to haves in our game: a special AI for the ghost and made the ghosts harder to get rid off
+//
+//We worked really hard and are proud of what we achieved in this game and even though we were not able to do every single thing we planned
+//we ended up with a proper game and are happy with the final result
 
 // Arrays //
 
@@ -38,6 +54,7 @@ let cellSize = 25;
 let pacmanUp, pacmanDown, pacmanRight, pacmanLeft, currentPacman;
 let greenGhost, inky;
 let redGhost, blinky;
+let life;
 let lives = 3;
 let pacmanXCord, bashfulXCord, shadowXCord;
 let pacmanYCord, bashfulYCord, shadowYCord;
@@ -66,6 +83,7 @@ function preload() {
 function setup() {
   createCanvas(windowWidth, windowHeight);
   myMenu = new Menu();
+  life = new Death();
   pacman = new Pacman();
   myScore = new Score();
   inky = new Bashful();
@@ -104,7 +122,6 @@ function draw() {
       image(pacmanImage, (12 * 25 + i * 30), 21 * 25 + 5);
     }
   }
-
 }
 
 function makeGrid() {
@@ -250,6 +267,8 @@ class Pacman {
   }
 
   movePac() {
+    //In this function, pacman will detect its surroundings to see if there are borders or an open spot
+    //If there is an open spot, it will go for it and move ahead
     if (currentFrame + 1200 < frameCount) {
       powerPelletOn = false;
     }
@@ -324,6 +343,10 @@ class Pacman {
     }
   }
 }
+
+//The ghosts movement is similar to Pacman. They will detect its surroundings to see where it can go
+//The ghosts will only scatter around the screen until they detect if pacaman is in its surrounding and
+//once it is, it will chase pacman
 
 class Bashful {
   constructor() {
@@ -550,10 +573,9 @@ class Shadow {
   }
 }
 
-
-
-
 class Score {
+  //This class helps keep track of the score for the game and uses a local storage system
+  //so that means that the computer you are playing in will remember your high score
   constructor() {
     this.amount = 0;
   }
@@ -564,19 +586,26 @@ class Score {
   }
 }
 
-function death() {
-  for (let x = 0; x < 27; x++) {
-    for (let y = 0; y < 21; y++) {
-      if (grid[y][x] === 3 || grid[y][x] === 4 || grid[y][x] === 5) {
-        grid[y][x] = 0;
+class Death {
+  constructor() {
+
+  }
+
+  death() {
+    for (let x = 0; x < 27; x++) {
+      for (let y = 0; y < 21; y++) {
+        if (grid[y][x] === 3 || grid[y][x] === 4 || grid[y][x] === 5) {
+          grid[y][x] = 0;
+        }
       }
     }
+    grid[15][13] = 3;
+    grid[7][9] = 4;
+    grid[7][17] = 5;
+    lives = lives - 1;
   }
-  grid[15][13] = 3;
-  grid[7][9] = 4;
-  grid[7][17] = 5;
-  lives = lives - 1;
 }
+
 
 function ghostDeath(ghost) {
   for (let x = 0; x < 27; x++) {
