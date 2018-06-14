@@ -21,12 +21,13 @@
 // Arrays //
 
 // 0 = blackspace, 1 = border, 2 = point, 3 = pacman, 4 = bashful Ghost, 5 = shadow Ghost
+// 6 = Power pellet, 7 = Orange Ghost, 8 = Pink Ghost
 let grid = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ],
   [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, ],
-  [1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, ],
+  [1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 8, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, ],
   [1, 6, 1, 0, 1, 2, 1, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0, 1, 2, 1, 0, 1, 6, 1, ],
-  [1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, ],
+  [1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 7, 1, 1, 1, 2, 1, ],
   [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, ],
   [1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, ],
   [1, 2, 2, 2, 2, 2, 2, 2, 1, 4, 2, 2, 2, 2, 2, 2, 2, 5, 1, 2, 2, 2, 2, 2, 2, 2, 1, ],
@@ -44,9 +45,8 @@ let grid = [
   [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, ],
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ],
 ];
-
 // global variables //
-let backgroundImage, menuPic, pacman, pointImage, myScore;
+let backgroundImage, menuPic, pacman, pointImage, myScore, pacmanImage;
 let state, myMenu, backgroundMusic, boop;
 let typeHere, button;
 let openMouth, closedMouth, pacmanEating;
@@ -54,10 +54,12 @@ let cellSize = 25;
 let pacmanUp, pacmanDown, pacmanRight, pacmanLeft, currentPacman;
 let greenGhost, inky;
 let redGhost, blinky;
-let life;
+let pinkGhost, pinky;
+let orangeGhost, clyde;
+let blueGhost;
 let lives = 3;
-let pacmanXCord, bashfulXCord, shadowXCord;
-let pacmanYCord, bashfulYCord, shadowYCord;
+let pacmanXCord, bashfulXCord, shadowXCord, clydeXCord, speedyXCord;
+let pacmanYCord, bashfulYCord, shadowYCord, clydeYCord, speedyYCord;
 let powerPellet;
 let powerPelletOn = false;
 let currentFrame;
@@ -71,6 +73,8 @@ function preload() {
   pointImage = loadImage("images/point.png");
   powerPellet = loadImage("images/powerPellet.png");
   greenGhost = loadImage("images/greenGhost.png");
+  pinkGhost = loadImage("images/pinkGhost.png");
+  orangeGhost = loadImage("images/orangeGhost.png");
   redGhost = loadImage("images/redGhost.png");
   blueGhost = loadImage("images/blueGhost.png");
   pacmanRight = createImg("images/pacmanEatRight.gif");
@@ -83,11 +87,12 @@ function preload() {
 function setup() {
   createCanvas(windowWidth, windowHeight);
   myMenu = new Menu();
-  life = new Death();
   pacman = new Pacman();
   myScore = new Score();
   inky = new Bashful();
   blinky = new Shadow();
+  pinky = new Speedy();
+  clyde = new Pokey();
   currentPacman = pacmanRight;
   state = 0;
   backgroundMusic.setVolume(0.6);
@@ -118,8 +123,10 @@ function draw() {
     myScore.showOnScreen();
     inky.moveBashful();
     blinky.moveShadow();
+    clyde.movePokey();
+    pinky.moveSpeedy();
     for (let i = 0; i < lives; i++) {
-      image(pacmanImage, (12 * 25 + i * 30), 21 * 25 + 5);
+      image(pacmanImage, 12 * 25 + i * 30, 21 * 25 + 5);
     }
   }
 }
@@ -135,37 +142,59 @@ function makeGrid() {
       if (grid[y][x] === 3) {
         if (currentPacman === pacmanRight) {
           pacmanRight.position(cellSize * x, cellSize * y);
-        } else {
+        }
+        else {
           pacmanRight.position(windowWidth, windowHeight);
         }
         if (currentPacman === pacmanLeft) {
           pacmanLeft.position(cellSize * x, cellSize * y);
-        } else {
+        }
+        else {
           pacmanLeft.position(windowWidth, windowHeight);
         }
         if (currentPacman === pacmanDown) {
           pacmanDown.position(cellSize * x, cellSize * y);
-        } else {
+        }
+        else {
           pacmanDown.position(windowWidth, windowHeight);
         }
         if (currentPacman === pacmanUp) {
           pacmanUp.position(cellSize * x, cellSize * y);
-        } else {
+        }
+        else {
           pacmanUp.position(windowWidth, windowHeight);
         }
       }
       if (grid[y][x] === 4) {
         if (powerPelletOn === true) {
           image(blueGhost, cellSize * x, cellSize * y);
-        } else {
+        }
+        else {
           image(greenGhost, cellSize * x, cellSize * y);
         }
       }
       if (grid[y][x] === 5) {
         if (powerPelletOn === true) {
           image(blueGhost, cellSize * x, cellSize * y);
-        } else {
+        }
+        else {
           image(redGhost, cellSize * x, cellSize * y);
+        }
+      }
+      if (grid[y][x] === 7) {
+        if (powerPelletOn === true) {
+          image(blueGhost, cellSize * x, cellSize * y);
+        }
+        else {
+          image(orangeGhost, cellSize * x, cellSize * y);
+        }
+      }
+      if (grid[y][x] === 8) {
+        if (powerPelletOn === true) {
+          image(blueGhost, cellSize * x, cellSize * y);
+        }
+        else {
+          image(pinkGhost, cellSize * x, cellSize * y);
         }
       }
       if (grid[y][x] === 6) {
@@ -179,22 +208,22 @@ function keyPressed() {
   if (keyCode === 68) { //D key going right
     pacman.xSpeed = 10;
     pacman.ySpeed = 0;
-    currentPacman = pacmanRight
+    currentPacman = pacmanRight;
   }
   if (keyCode === 65) { //A key going left
     pacman.xSpeed = -10;
     pacman.ySpeed = 0;
-    currentPacman = pacmanLeft
+    currentPacman = pacmanLeft;
   }
   if (keyCode === 87) { //W key going up
     pacman.xSpeed = 0;
     pacman.ySpeed = -10;
-    currentPacman = pacmanUp
+    currentPacman = pacmanUp;
   }
   if (keyCode === 83) { //S key going down
     pacman.xSpeed = 0;
     pacman.ySpeed = 10;
-    currentPacman = pacmanDown
+    currentPacman = pacmanDown;
   }
 }
 
@@ -243,7 +272,8 @@ class Menu {
     if (mouseX <= this.buttonx + this.buttonWidth / 2 && mouseX >= this.buttonx - this.buttonWidth / 2 &&
       mouseY <= this.buttony + this.buttonHeight / 2 && mouseY >= this.buttony - this.buttonHeight / 2) {
       this.isMouseOverButton = true;
-    } else {
+    }
+    else {
       this.isMouseOverButton = false;
     }
   }
@@ -284,9 +314,11 @@ class Pacman {
               if (x === 26 && y === 10) {
                 grid[y][x] = 0;
                 grid[10][0] = 3;
-              } else if (grid[y][x + 1] === 1) {
+              }
+              else if (grid[y][x + 1] === 1) {
                 this.xSpeed = 0;
-              } else {
+              }
+              else {
                 boop.play();
                 grid[y][x] = 0;
                 myScore.amount += 10;
@@ -301,9 +333,11 @@ class Pacman {
               if (x === 0 && y === 10) {
                 grid[y][x] = 0;
                 grid[10][26] = 3;
-              } else if (grid[y][x - 1] === 1) {
+              }
+              else if (grid[y][x - 1] === 1) {
                 this.xSpeed = 0;
-              } else {
+              }
+              else {
                 boop.play();
                 grid[y][x] = 0;
                 grid[y][x - 1] = 3;
@@ -316,7 +350,8 @@ class Pacman {
               }
               if (grid[y + 1][x] === 1) {
                 this.ySpeed = 0;
-              } else {
+              }
+              else {
                 boop.play();
                 grid[y][x] = 0;
                 grid[y + 1][x] = 3;
@@ -330,7 +365,8 @@ class Pacman {
               }
               if (grid[y - 1][x] === 1) {
                 this.ySpeed = 0;
-              } else {
+              }
+              else {
                 boop.play();
                 grid[y][x] = 0;
                 grid[y - 1][x] = 3;
@@ -348,7 +384,159 @@ class Pacman {
 //The ghosts will only scatter around the screen until they detect if pacaman is in its surrounding and
 //once it is, it will chase pacman
 
-class Bashful {
+class Speedy {//The pink ghost
+  constructor() {
+    this.direction;
+    this.previousDirection = "none";
+  }
+
+  moveSpeedy() {
+    let directionList = [];
+    let directionSelected = [];
+    ghostLoop: for (let x = 0; x < 27; x++) {
+      for (let y = 0; y < 21; y++) {
+        if (frameCount % 20 === 0) {
+          if (grid[y][x] === 3) {
+            pacmanXCord = x;
+            pacmanYCord = y;
+          }
+          if (grid[y][x] === 8) {
+            speedyXCord = x;
+            speedyYCord = y;
+            if ((grid[y][x + 1] === 0 || grid[y][x + 1] === 2) && grid[y][x + 1] !== 1) {
+              directionList.push("rightFree");
+            }
+            if ((grid[y][x - 1] === 0 || grid[y][x - 1] === 2) && grid[y][x - 1] !== 1) {
+              directionList.push("leftFree");
+            }
+            if ((grid[y + 1][x] === 0 || grid[y + 1][x] === 2) && grid[y + 1][x] !== 1) {
+              directionList.push("downFree");
+            }
+            if ((grid[y - 1][x] === 0 || grid[y - 1][x] === 2) && grid[y - 1][x] !== 1) {
+              directionList.push("upFree");
+            }
+            // if (directionList.indexOf(this.previousDirection) === -1) {
+            //   this.direction = directionList.sample();
+            // } else {
+            //   this.direction = this.previousDirection;
+            // }
+            if (pacmanXCord < speedyXCord && directionList.indexOf("leftFree") !== -1) {
+              this.direction = "leftFree";
+            }
+            else if (pacmanXCord > speedyXCord && directionList.indexOf("rightFree") !== -1) {
+              this.direction = "RightFree";
+            }
+            else if (pacmanYCord < speedyYCord && directionList.indexOf("upFree") !== -1) {
+              this.direction = "upFree";
+            }
+            else if (pacmanYCord > speedyYCord && directionList.indexOf("downFree") !== -1) {
+              this.direction = "downFree";
+            }
+
+
+
+            if (this.direction === "upFree") {
+              grid[y][x] = grid[y - 1][x];
+              grid[y - 1][x] = 8;
+            }
+            else if (this.direction === "downFree") {
+              grid[y][x] = grid[y + 1][x];
+              grid[y + 1][x] = 8;
+            }
+            else if (this.direction === "rightFree") {
+              grid[y][x] = grid[y][x + 1];
+              grid[y][x + 1] = 8;
+            }
+            else if (this.direction === "leftFree") {
+              grid[y][x] = grid[y][x - 1];
+              grid[y][x - 1] = 8;
+            }
+            this.previousDirection = this.direction;
+            break ghostLoop;
+          }
+        }
+      }
+    }
+  }
+}
+
+class Pokey {//The orange ghost
+  constructor() {
+    this.direction;
+    this.previousDirection = "none";
+  }
+
+  movePokey() {
+    let directionList = [];
+    let directionSelected = [];
+    ghostLoop: for (let x = 0; x < 27; x++) {
+      for (let y = 0; y < 21; y++) {
+        if (frameCount % 20 === 0) {
+          if (grid[y][x] === 3) {
+            pacmanXCord = x;
+            pacmanYCord = y;
+          }
+          if (grid[y][x] === 7) {
+            clydeXCord = x;
+            clydeYCord = y;
+            if ((grid[y][x + 1] === 0 || grid[y][x + 1] === 2) && grid[y][x + 1] !== 1) {
+              directionList.push("rightFree");
+            }
+            if ((grid[y][x - 1] === 0 || grid[y][x - 1] === 2) && grid[y][x - 1] !== 1) {
+              directionList.push("leftFree");
+            }
+            if ((grid[y + 1][x] === 0 || grid[y + 1][x] === 2) && grid[y + 1][x] !== 1) {
+              directionList.push("downFree");
+            }
+            if ((grid[y - 1][x] === 0 || grid[y - 1][x] === 2) && grid[y - 1][x] !== 1) {
+              directionList.push("upFree");
+            }
+            // if (directionList.indexOf(this.previousDirection) === -1) {
+            //   this.direction = directionList.sample();
+            // } else {
+            //   this.direction = this.previousDirection;
+            // }
+            if (pacmanXCord < clydeXCord && directionList.indexOf("leftFree") !== -1) {
+              this.direction = "leftFree";
+            }
+            else if (pacmanXCord > clydeXCord && directionList.indexOf("rightFree") !== -1) {
+              this.direction = "RightFree";
+            }
+            else if (pacmanYCord < clydeYCord && directionList.indexOf("upFree") !== -1) {
+              this.direction = "upFree";
+            }
+            else if (pacmanYCord > clydeYCord && directionList.indexOf("downFree") !== -1) {
+              this.direction = "downFree";
+            }
+
+
+
+            if (this.direction === "upFree") {
+              grid[y][x] = grid[y - 1][x];
+              grid[y - 1][x] = 7;
+            }
+            else if (this.direction === "downFree") {
+              grid[y][x] = grid[y + 1][x];
+              grid[y + 1][x] = 7;
+            }
+            else if (this.direction === "rightFree") {
+              grid[y][x] = grid[y][x + 1];
+              grid[y][x + 1] = 7;
+            }
+            else if (this.direction === "leftFree") {
+              grid[y][x] = grid[y][x - 1];
+              grid[y][x - 1] = 7;
+            }
+            this.previousDirection = this.direction;
+            break ghostLoop;
+          }
+        }
+      }
+    }
+  }
+}
+
+class Bashful {//The blue ghost
   constructor() {
     this.direction;
     this.previousDirection = "none";
@@ -385,13 +573,16 @@ class Bashful {
             //   this.direction = this.previousDirection;
             // }
             if (pacmanXCord < bashfulXCord && directionList.indexOf("leftFree") !== -1) {
-              this.direction = "leftFree"
-            } else if (pacmanXCord > bashfulXCord && directionList.indexOf("rightFree") !== -1) {
-              this.direction = "RightFree"
-            } else if (pacmanYCord < bashfulYCord && directionList.indexOf("upFree") !== -1) {
-              this.direction = "upFree"
-            } else if (pacmanYCord > bashfulYCord && directionList.indexOf("downFree") !== -1) {
-              this.direction = "downFree"
+              this.direction = "leftFree";
+            }
+            else if (pacmanXCord > bashfulXCord && directionList.indexOf("rightFree") !== -1) {
+              this.direction = "RightFree";
+            }
+            else if (pacmanYCord < bashfulYCord && directionList.indexOf("upFree") !== -1) {
+              this.direction = "upFree";
+            }
+            else if (pacmanYCord > bashfulYCord && directionList.indexOf("downFree") !== -1) {
+              this.direction = "downFree";
             }
 
 
@@ -399,13 +590,16 @@ class Bashful {
             if (this.direction === "upFree") {
               grid[y][x] = grid[y - 1][x];
               grid[y - 1][x] = 4;
-            } else if (this.direction === "downFree") {
+            }
+            else if (this.direction === "downFree") {
               grid[y][x] = grid[y + 1][x];
               grid[y + 1][x] = 4;
-            } else if (this.direction === "rightFree") {
+            }
+            else if (this.direction === "rightFree") {
               grid[y][x] = grid[y][x + 1];
               grid[y][x + 1] = 4;
-            } else if (this.direction === "leftFree") {
+            }
+            else if (this.direction === "leftFree") {
               grid[y][x] = grid[y][x - 1];
               grid[y][x - 1] = 4;
             }
@@ -418,7 +612,7 @@ class Bashful {
   }
 }
 
-class Shadow {
+class Shadow {//The red ghost
   constructor() {
     this.direction;
     this.previousDirection = "downFree";
@@ -429,11 +623,12 @@ class Shadow {
     ghostLoop: for (let x = 0; x < 27; x++) {
       for (let y = 0; y < 21; y++) {
         if (grid[y][x] === 3) {
-          pacmanXCord = x
-          pacmanYCord = y
-        } else if (grid[y][x] === 5) {
-          shadowXCord = x
-          shadowYCord = y
+          pacmanXCord = x;
+          pacmanYCord = y;
+        }
+        else if (grid[y][x] === 5) {
+          shadowXCord = x;
+          shadowYCord = y;
         }
         if (frameCount % 20 === 0) {
           if (grid[y][x] === 5) {
@@ -451,7 +646,8 @@ class Shadow {
             }
             if (directionList.indexOf(this.previousDirection) === -1) {
               this.direction = directionList.sample();
-            } else {
+            }
+            else {
               this.direction = this.previousDirection;
             }
 
@@ -516,50 +712,61 @@ class Shadow {
                 if (powerPelletOn === false) {
                   grid[y][x] = grid[y - 1][x];
                   grid[y - 1][x] = 5;
-                  death()
-                } else {
+                  death();
+                }
+                else {
                   ghostDeath(5);
                 }
-              } else {
+              }
+              else {
                 grid[y][x] = grid[y - 1][x];
                 grid[y - 1][x] = 5;
               }
-            } else if (this.direction === "downFree") {
+            }
+            else if (this.direction === "downFree") {
               if (grid[y + 1][x] === 3) {
                 if (powerPelletOn === false) {
                   grid[y][x] = grid[y + 1][x];
                   grid[y + 1][x] = 5;
-                  death()
-                } else {
+                  death();
+                }
+                else {
                   ghostDeath(5);
                 }
-              } else {
+              }
+              else {
                 grid[y][x] = grid[y + 1][x];
                 grid[y + 1][x] = 5;
               }
-            } else if (this.direction === "rightFree") {
+            }
+            else if (this.direction === "rightFree") {
               if (grid[y][x + 1] === 3) {
                 if (powerPelletOn === false) {
                   grid[y][x] = grid[y][x + 1];
                   grid[y][x + 1] = 5;
-                  death()
-                } else {
+                  death();
+                }
+                else {
                   ghostDeath(5);
                 }
-              } else {
+              }
+              else {
                 grid[y][x] = grid[y][x + 1];
                 grid[y][x + 1] = 5;
               }
-            } else if (this.direction === "leftFree") {
+            }
+            else if (this.direction === "leftFree") {
               if (grid[y][x - 1] === 3) {
                 if (powerPelletOn === false) {
                   grid[y][x] = grid[y][x - 1];
                   grid[y][x - 1] = 5;
-                  death()
-                } else {
+                  death();
+                }
+                else {
                   ghostDeath(5);
                 }
-              } else {
+              }
+              else {
                 grid[y][x] = grid[y][x - 1];
                 grid[y][x - 1] = 5;
               }
@@ -586,24 +793,18 @@ class Score {
   }
 }
 
-class Death {
-  constructor() {
-
-  }
-
-  death() {
-    for (let x = 0; x < 27; x++) {
-      for (let y = 0; y < 21; y++) {
-        if (grid[y][x] === 3 || grid[y][x] === 4 || grid[y][x] === 5) {
-          grid[y][x] = 0;
-        }
+function death() {
+  for (let x = 0; x < 27; x++) {
+    for (let y = 0; y < 21; y++) {
+      if (grid[y][x] === 3 || grid[y][x] === 4 || grid[y][x] === 5) {
+        grid[y][x] = 0;
       }
     }
-    grid[15][13] = 3;
-    grid[7][9] = 4;
-    grid[7][17] = 5;
-    lives = lives - 1;
   }
+  grid[15][13] = 3;
+  grid[7][9] = 4;
+  grid[7][17] = 5;
+  lives = lives - 1;
 }
 
 
