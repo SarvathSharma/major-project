@@ -17,6 +17,8 @@
 //
 //We worked really hard and are proud of what we achieved in this game and even though we were not able to do every single thing we planned
 //we ended up with a proper game and are happy with the final result
+//
+//Credits: p5js reference page, Mr. Schellenberg, Dom, William, https://stackoverflow.com/questions/29370017/adding-a-high-score-to-local-storage, https://www.dafont.com/silkscreen.font
 
 // Arrays //
 
@@ -46,8 +48,8 @@ let grid = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ],
 ];
 // global variables //
-let backgroundImage, menuPic, pacman, pointImage, myScore, pacmanImage;
-let state, myMenu, backgroundMusic, boop;
+let backgroundImage, menuPic, pacman, pointImage, pacmanImage;
+let state, myMenu, backgroundMusic, boop, myFont;
 let typeHere, button;
 let openMouth, closedMouth, pacmanEating;
 let cellSize = 25;
@@ -64,6 +66,7 @@ let powerPellet;
 let powerPelletOn = false;
 let currentFrame;
 let xDistance, yDistance;
+let score, scoreLeft, highScore;
 
 function preload() {
   backgroundImage = loadImage("images/pacman-grid.png");
@@ -82,25 +85,39 @@ function preload() {
   pacmanDown = createImg("images/pacmanEatDown.gif");
   pacmanUp = createImg("images/pacmanEatUp.gif");
   pacmanImage = loadImage("images/pacmanImage.png");
+  myFont = loadFont("assets/font.ttf");
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+  textFont(myFont);
   myMenu = new Menu();
   pacman = new Pacman();
-  myScore = new Score();
   inky = new Bashful();
   blinky = new Shadow();
   pinky = new Speedy();
   clyde = new Pokey();
   currentPacman = pacmanRight;
   state = 0;
+  score = 0;
+  highScore = 0;
+  //The music loading
   backgroundMusic.setVolume(0.6);
   backgroundMusic.loop();
+  //To load the GIFS of pacman eating
   pacmanRight.position(windowWidth, windowHeight);
   pacmanLeft.position(windowWidth, windowHeight);
   pacmanUp.position(windowWidth, windowHeight);
   pacmanDown.position(windowWidth, windowHeight);
+  //To get the high score of the game from the local storage
+  if (!localStorage.getItem("highscore")) {
+    // Set the highscore.
+    setHighScore();
+  }
+  else {
+    // Retrieve the highscore if it already exists.
+    getHighScore();
+  }
 }
 
 Array.prototype.sample = function() {
@@ -120,14 +137,18 @@ function draw() {
     noStroke();
     pacman.movePac();
     makeGrid();
-    myScore.showOnScreen();
     inky.moveBashful();
     blinky.moveShadow();
     clyde.movePokey();
     pinky.moveSpeedy();
+    displayScore();
     for (let i = 0; i < lives; i++) {
       image(pacmanImage, 12 * 25 + i * 30, 21 * 25 + 5);
     }
+  }
+
+  if (state === 2) {
+    myMenu.displayGameOver();
   }
 }
 
@@ -237,13 +258,9 @@ class Menu {
   constructor() {
     this.buttonx = width / 2;
     this.buttony = height / 2 + 80;
-    this.guestButtonY = height / 2 + 40;
-    this.userButtonY = height / 2 + 120;
     this.buttonWidth = 100;
     this.buttonHeight = 50;
     this.isMouseOverButton = false;
-    this.userButton = false;
-    this.guestButton = false;
   }
 
   displayButton() {
@@ -280,13 +297,20 @@ class Menu {
 
   displayGameOver() {
     // Writes game over and your score when you lose
+    image(menuPic, width / 2 - 395, height / 2 - 300);
     fill(0, 255, 0);
     textSize(48);
     textAlign(CENTER, CENTER);
-    text("Your Score: " + myScore.amount, this.buttonx, this.buttony);
+    text("Your Score: " + score, this.buttonx, height - 200);
+    text("Your High Score: " + highScore, this.buttonx, this.buttony + 100);
+    if (score > highScore) {
+      setHighScore();
+      highScore = score;
+      text("New High Score: " + highScore, this.buttonx, this.buttony);
+    }
 
     textSize(72);
-    text("Game Over", this.buttonx, this.buttony - 75);
+    text("Game Over", this.buttonx, this.buttony);
   }
 }
 
@@ -321,7 +345,6 @@ class Pacman {
               else {
                 boop.play();
                 grid[y][x] = 0;
-                myScore.amount += 10;
                 grid[y][x + 1] = 3;
               }
               break xYLoop;
@@ -780,17 +803,43 @@ class Shadow {//The red ghost
   }
 }
 
-class Score {
-  //This class helps keep track of the score for the game and uses a local storage system
-  //so that means that the computer you are playing in will remember your high score
-  constructor() {
-    this.amount = 0;
-  }
+//These functions help keep track of the score for the game and uses a local storage system
+//so that means that the computer you are playing in will remember your high score
 
-  showOnScreen() {
-    textAlign(LEFT, BOTTOM);
-    text("Score: " + this.amount, width - 175, height - 5);
+function displayScore() {
+  scoreLeft = 0;
+  for(let x = 0; x < 27; x++) {
+    for (let y = 0; y < 21; y++) {
+      if (grid[y][x] === 6) {
+        scoreLeft = scoreLeft + 100;
+      }
+      if (grid[y][x] === 2) {
+        scoreLeft = scoreLeft + 10;
+      }
+    }
   }
+  push();
+  score = 2790 - scoreLeft;
+  if (score > highScore) {
+    setHighScore();
+    highScore = score;
+  }
+  else {
+    localStorage.setItem("highscore", score);
+  }
+  textSize(18);
+  textAlign(CENTER, CENTER);
+  text("Score: " + score, width/6 + 25, height/2 + 85);
+  text("High Score: " + highScore, width/6 + 25, height/2 + 100);
+  pop();
+}
+
+function setHighScore() {
+  localStorage.setItem("highscore", score);
+}
+
+function getHighScore() {
+  highScore = localStorage.getItem("highscore");
 }
 
 function death() {
